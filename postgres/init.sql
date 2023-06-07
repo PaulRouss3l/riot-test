@@ -4,6 +4,6 @@ CREATE TABLE "employees" (
   "name" text NOT NULL,
   "email" text NOT NULL UNIQUE,
   "secondary_emails" text[],
-  "googleUserId" text,
-  "slackUserId" text
+  "google_user_id" text,
+  "slack_user_id" text
 );

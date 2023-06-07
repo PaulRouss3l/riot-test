@@ -30,21 +30,56 @@ export const createEmployee = async (payload: EmployeePayload): Promise<Employee
     )
     VALUES ($1, $2)
     `,
-    [
-      payload.name,
-      payload.email,
-      // payload.secondary_emails || [],
-      // payload.googleUserId || null,
-      // payload.slackUserId || null
-    ],
+    [payload.name, payload.email],
   );
   return notFoundExn(await getEmployeeByEmail(payload.email));
+};
+
+export const createOrUpdate = async (employee: EmployeePayload) => {
+  const duplicate = await getEmployeeByEmail(employee.email);
+  if (duplicate) {
+    await client.query(
+      `
+    UPDATE employees SET
+      name=$1,
+      secondary_emails=$2,
+      google_user_id=$3,
+      slack_user_id=$4
+    WHERE email=$5
+    `,
+      [
+        employee.name,
+        employee.secondary_emails || [],
+        employee.googleUserId || null,
+        employee.slackUserId || null,
+        employee.email,
+      ],
+    );
+  } else {
+    const params = [
+      employee.name,
+      employee.email,
+      employee.secondary_emails || [],
+      employee.googleUserId || null,
+      employee.slackUserId || null,
+    ];
+    await client.query(
+      `
+    INSERT INTO employees(
+      name, email, secondary_emails, google_user_id, slack_user_id
+      )
+      VALUES ($1, $2, $3, $4, $5)
+      `,
+      params,
+    );
+  }
+  return notFoundExn(await getEmployeeByEmail(employee.email));
 };
 
 export const getEmployeeByEmail = async (email: string): Promise<Employee | null> => {
   const result = await client.query(
     `
-    SELECT *
+    SELECT id, name, email, secondary_emails, google_user_id as googleUserId, slack_user_id as slackUserId
     FROM employees
     WHERE email=$1
   `,

@@ -1,5 +1,5 @@
 import { ProviderPayload } from '../../schemas/ProviderPayload.schema';
-import { Employee, createEmployee, getEmployeeByEmail } from '../../models/employee.model';
+import { EmployeePayload, createOrUpdate } from '../../models/employee.model';
 import ProviderDataJSON from '../../schemas/ProviderData.json';
 import { ProviderData } from '../../schemas/ProviderData.schema';
 import axios, { AxiosError } from 'axios';
@@ -45,11 +45,26 @@ export class ProviderImportService {
     return data;
   };
 
+  private static ProviderPayloadPayload(provider: string, employee: ProviderEmployee): EmployeePayload {
+    const response: EmployeePayload = {
+      name: employee.name,
+      email: employee.email,
+      secondary_emails: [],
+    };
+    if (provider == 'Google') response.googleUserId = employee.id;
+    if (provider == 'Slack') response.slackUserId = employee.id;
+    return response;
+  }
+
   async importEmployees(payload: ProviderPayload): Promise<ProviderData> {
-    const employees = await this.getDataFromProvider(payload);
+    const data = await this.getDataFromProvider(payload);
 
-    // create employees
+    await Promise.all(
+      data.employees
+        .map((employee) => ProviderImportService.ProviderPayloadPayload(data.provider, employee))
+        .map(async (employee) => await createOrUpdate(employee)),
+    );
 
-    return employees;
+    return data;
   }
 }

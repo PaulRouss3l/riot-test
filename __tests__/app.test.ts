@@ -99,6 +99,25 @@ describe('App Test', () => {
         ],
       };
       expect(res.body).toEqual(expected);
+
+      const result = await client.query(`SELECT * FROM employees`);
+      const expectedInDb = [
+        {
+          email: 'candacefoster@quarx.com',
+          google_user_id: null,
+          name: 'Candace Foster',
+          secondary_emails: [],
+          slack_user_id: 'slackId1',
+        },
+        {
+          email: 'latonyamorrow@quarx.com',
+          google_user_id: null,
+          name: 'Latonya Morrow',
+          secondary_emails: [],
+          slack_user_id: 'slackId2',
+        },
+      ];
+      expect(result.rows.map(({id, ...employee}) => employee)).toEqual(expectedInDb);
     });
 
     it('Invalid payload, return 400', async () => {
