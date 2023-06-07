@@ -1,4 +1,3 @@
--- create database sequra;
 
 CREATE TABLE "employees" (
   "id" uuid DEFAULT gen_random_uuid() PRIMARY KEY NOT NULL,

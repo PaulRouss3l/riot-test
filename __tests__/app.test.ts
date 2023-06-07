@@ -17,9 +17,6 @@ describe('App Test', () => {
       await client.query(`TRUNCATE employees CASCADE;`);
     });
 
-    afterAll(async () => {
-      await client.end();
-    });
 
     it('Happy path, create works, return 200', async () => {
       const res = await request(app).post('/api/employees').set('Content-Type', 'application/json').send({
@@ -41,7 +38,6 @@ describe('App Test', () => {
         name: 'Garneau Marc',
         email: 'MarcGarneau@doestexist.com',
       });
-
       expect(res.status).toBe(409);
     });
 
@@ -70,5 +66,40 @@ describe('App Test', () => {
 
       expect(res.status).toBe(400);
     });
+  });
+
+  describe('POST /api/import', () => {
+    beforeEach(async () => {
+      await client.query(`TRUNCATE employees CASCADE;`);
+    });
+
+    it('Happy path, create works, return 200', async () => {
+      const res = await request(app).post('/api/import').set('Content-Type', 'application/json').send({
+        url: 'https://fake-subscriptions-api.fly.dev/tests/slack/1',
+      });
+
+      expect(res.status).toBe(201);
+    });
+
+    it('Invalid payload, return 400', async () => {
+      const res = await request(app).post('/api/import').set('Content-Type', 'application/json').send({
+        not: 'expected',
+      });
+
+      expect(res.status).toBe(400);
+    });
+
+    it('Invalid url, return 400', async () => {
+      const res = await request(app).post('/api/import').set('Content-Type', 'application/json').send({
+        url: 'Not an url',
+      });
+
+      expect(res.status).toBe(400);
+    });
+  });
+
+
+  afterAll(async () => {
+    await client.end();
   });
 });

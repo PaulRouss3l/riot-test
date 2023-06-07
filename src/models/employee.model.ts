@@ -1,5 +1,15 @@
-import { Employee } from 'src/services/employee-directory-import/employee-directory-import.service';
-import { client } from '../lib/database';
+import { client, notFoundExn } from '../lib/database';
+
+export class DuplicateError extends Error {}
+
+export interface Employee {
+  id: string;
+  name: string;
+  email: string;
+  secondary_emails?: string[];
+  googleUserId?: string;
+  slackUserId?: string;
+}
 
 export interface EmployeePayload {
   name: string;
@@ -25,11 +35,10 @@ export const createEmployee = async (payload: EmployeePayload): Promise<Employee
       // payload.slackUserId || null
     ],
   );
-
-  return getEmployeeByEmail(payload.email);
+  return notFoundExn(await getEmployeeByEmail(payload.email));
 };
 
-export const getEmployeeByEmail = async (email: string): Promise<Employee> => {
+export const getEmployeeByEmail = async (email: string): Promise<Employee|null> => {
   const result = await client.query(
     `
     SELECT *
