@@ -1,13 +1,18 @@
 {
-  "$schema": "http://json-schema.org/draft-07/schema#",
-  "properties": {
-    "email": {
-      "type": "string"
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "properties": {
+        "email": {
+            "format": "email",
+            "type": "string"
+        },
+        "name": {
+            "type": "string"
+        }
     },
-    "name": {
-      "type": "string"
-    }
-  },
-  "required": ["email", "name"],
-  "type": "object"
+    "required": [
+        "email",
+        "name"
+    ],
+    "type": "object"
 }
+

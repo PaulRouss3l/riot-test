@@ -61,5 +61,14 @@ describe('App Test', () => {
 
       expect(res.status).toBe(400);
     });
+
+    it('should return a 400 if the email address is not in the correct format', async () => {
+      const res = await request(app).post('/api/employees').set('Content-Type', 'application/json').send({
+        name: 'Garneau Marc',
+        email: 'not an email',
+      });
+
+      expect(res.status).toBe(400);
+    });
   });
 });

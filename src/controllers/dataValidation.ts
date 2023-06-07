@@ -4,6 +4,9 @@ import { Request, Response, NextFunction } from 'express';
 // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
 export const validateBody = (schema: Schema) => {
   const ajv = new Ajv();
+
+  ajv.addFormat("email", /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/)
+
   // compile schema
   const validate = ajv.compile(schema);
 
