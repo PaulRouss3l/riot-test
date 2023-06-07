@@ -1,0 +1,35 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "definitions": {
+    "Employee": {
+      "properties": {
+        "email": {
+          "format": "email",
+          "type": "string"
+        },
+        "id": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        }
+      },
+      "required": ["email", "id", "name"],
+      "type": "object"
+    }
+  },
+  "properties": {
+    "employees": {
+      "items": {
+        "$ref": "#/definitions/Employee"
+      },
+      "type": "array"
+    },
+    "provider": {
+      "format": "provider",
+      "type": "string"
+    }
+  },
+  "required": ["employees", "provider"],
+  "type": "object"
+}

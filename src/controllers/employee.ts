@@ -1,4 +1,7 @@
-import { ProviderImportService } from '../services/employee-directory-import/provider-import.service';
+import {
+  InvalidProviderData,
+  ProviderImportService,
+} from '../services/employee-directory-import/provider-import.service';
 import { ManualImportService } from '../services/employee-directory-import/manual-import.service';
 import { Request, Response } from 'express';
 import { DuplicateError } from '../models/employee.model';
@@ -30,17 +33,18 @@ export const createEmployeeFromProvider = async (req: Request, res: Response): P
   const payload = { ...req.body };
 
   try {
-    // await importService.importEmployees(payload);
+    const result = await importService.importEmployees(payload);
+    res.status(201);
+    res.send(result);
+    return;
   } catch (e) {
     if (e instanceof DuplicateError) {
       res.status(409);
+    } else if (e instanceof InvalidProviderData) {
+      res.status(400);
     } else {
       res.status(500);
     }
-    res.send();
-    return;
   }
-
-  res.status(201);
   res.send();
 };

@@ -20,7 +20,7 @@ export interface EmployeePayload {
 }
 
 export const createEmployee = async (payload: EmployeePayload): Promise<Employee> => {
-  const duplicate = await getEmployeeByEmail(payload.email)
+  const duplicate = await getEmployeeByEmail(payload.email);
   if (duplicate) throw new DuplicateError();
 
   await client.query(
@@ -41,7 +41,7 @@ export const createEmployee = async (payload: EmployeePayload): Promise<Employee
   return notFoundExn(await getEmployeeByEmail(payload.email));
 };
 
-export const getEmployeeByEmail = async (email: string): Promise<Employee|null> => {
+export const getEmployeeByEmail = async (email: string): Promise<Employee | null> => {
   const result = await client.query(
     `
     SELECT *

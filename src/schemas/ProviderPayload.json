@@ -1,14 +1,11 @@
 {
-    "$schema": "http://json-schema.org/draft-07/schema#",
-    "properties": {
-        "url": {
-            "format": "url",
-            "type": "string"
-        }
-    },
-    "required": [
-        "url"
-    ],
-    "type": "object"
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "properties": {
+    "url": {
+      "format": "url",
+      "type": "string"
+    }
+  },
+  "required": ["url"],
+  "type": "object"
 }
-
