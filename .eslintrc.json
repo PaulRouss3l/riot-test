@@ -1,0 +1,49 @@
+{
+  "root": true,
+  "ignorePatterns": ["dist/**/*", "coverage/**/*", "**/*.js"],
+  "parser": "@typescript-eslint/parser",
+  "plugins": ["@typescript-eslint"],
+  "extends": ["eslint:recommended", "plugin:@typescript-eslint/recommended"],
+  "rules": {
+    "@typescript-eslint/no-floating-promises": "error",
+    "import/prefer-default-export": "off",
+    "@typescript-eslint/explicit-function-return-type": "error",
+    "class-methods-use-this": "off",
+    "padding-line-between-statements": [
+      "error",
+      {
+        "blankLine": "always",
+        "prev": "*",
+        "next": "return"
+      }
+    ],
+    "max-lines-per-function": [
+      "error",
+      {
+        "max": 30,
+        "skipBlankLines": true,
+        "skipComments": true,
+        "IIFEs": true
+      }
+    ],
+    "complexity": [
+      "error",
+      {
+        "max": 10
+      }
+    ],
+    "no-multi-spaces": ["error"],
+    "explicit-function-return-type": "off"
+  },
+  "overrides": [
+    {
+      "files": ["**/*.spec.ts", "**/*.test.ts", "**/*.e2e-spec.ts"],
+      "rules": {
+        "max-lines-per-function": "off"
+      }
+    }
+  ],
+  "parserOptions": {
+    "project": "./tsconfig.build.json"
+  }
+}
