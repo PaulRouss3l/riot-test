@@ -13,10 +13,11 @@ export const createEmployeeManually = async (req: Request, res: Response): Promi
   } catch (e) {
     if (e instanceof DuplicateError) {
       res.status(409);
-      res.send();
-
-      return;
+    } else {
+      res.status(500);
     }
+    res.send();
+    return;
   }
 
   res.status(201);
@@ -29,14 +30,15 @@ export const createEmployeeFromProvider = async (req: Request, res: Response): P
   const payload = { ...req.body };
 
   try {
-    await importService.importEmployees(payload);
+    // await importService.importEmployees(payload);
   } catch (e) {
     if (e instanceof DuplicateError) {
       res.status(409);
-      res.send();
-
-      return;
+    } else {
+      res.status(500);
     }
+    res.send();
+    return;
   }
 
   res.status(201);

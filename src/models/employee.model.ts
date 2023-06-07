@@ -20,6 +20,9 @@ export interface EmployeePayload {
 }
 
 export const createEmployee = async (payload: EmployeePayload): Promise<Employee> => {
+  const duplicate = await getEmployeeByEmail(payload.email)
+  if (duplicate) throw new DuplicateError();
+
   await client.query(
     `
   INSERT INTO employees(
