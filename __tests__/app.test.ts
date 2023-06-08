@@ -273,6 +273,28 @@ describe('App Test', () => {
         },
       ]);
     });
+
+    it('partial data, return 200', async () => {
+      await createOrUpdate({
+        name: 'Ursula Le Guin',
+        email: 'ursula@notanemail.com',
+      });
+
+      const res = await request(app).get('/api/employees').send();
+
+      const result: Employee[] = res.body
+
+      expect(res.status).toBe(200);
+      expect(result.map(({ id, ...employee }) => employee)).toEqual([
+        {
+          googleuserid: null,
+          name: 'Ursula Le Guin',
+          primaryemailaddress: 'ursula@notanemail.com',
+          secondaryemailaddresses: [],
+          slackuserid: null,
+        },
+      ]);
+    });
   });
 
   afterAll(async () => {
