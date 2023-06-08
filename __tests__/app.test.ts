@@ -2,7 +2,7 @@ import request from 'supertest';
 import 'jest-extended';
 import app from '../src/app';
 import { client } from '../src/lib/database';
-import { getEmployeeByEmail } from '../src/models/employee.model';
+import { Employee, createOrUpdate, getEmployeeByEmail } from '../src/models/employee.model';
 
 describe('App Test', () => {
   describe('GET /random-url', () => {
@@ -161,38 +161,117 @@ describe('App Test', () => {
           email: 'candacefoster@quarx.com',
           secondary_emails: [],
           google_user_id: null,
-          slack_user_id: 'slackId1'
+          slack_user_id: 'slackId1',
         },
         {
           name: 'Latonya Morrow',
           email: 'latonyamorrow@quarx.com',
           secondary_emails: [],
           google_user_id: null,
-          slack_user_id: 'slackId2'
+          slack_user_id: 'slackId2',
         },
         {
           name: 'Beno Foster',
           email: 'beno@quarx.com',
           secondary_emails: [],
           google_user_id: 'googleId1',
-          slack_user_id: null
+          slack_user_id: null,
         },
         {
           name: 'Latonya Morrow',
           email: 'latonya@free.fr',
-          secondary_emails: [ 'latonyamorrow@quarx.com' ],
+          secondary_emails: ['latonyamorrow@quarx.com'],
           google_user_id: 'googleId2',
-          slack_user_id: null
+          slack_user_id: null,
         },
         {
           name: 'Annie Flowers',
           email: 'annieflowers@quarx.com',
           secondary_emails: [],
           google_user_id: 'googleId3',
-          slack_user_id: null
-        }
+          slack_user_id: null,
+        },
       ];
       await expect(result.rows.map(({ id, ...employee }) => employee)).toEqual(expect.arrayContaining(expectedInDb));
+    });
+  });
+
+  describe('GET /api/employees', () => {
+    beforeEach(async () => {
+      await client.query(`TRUNCATE employees CASCADE;`);
+    });
+
+    it('Happy path, return 200', async () => {
+      await createOrUpdate({
+        name: 'Ursula Le Guin',
+        email: 'ursula@notanemail.com',
+        secondary_emails: ['ursula2@notanemail.com'],
+        google_user_id: 'g_id',
+        slack_user_id: 's_id',
+      });
+
+      const res = await request(app).get('/api/employees').send();
+
+      const result: Employee[] = res.body
+
+      expect(res.status).toBe(200);
+      expect(result.map(({ id, ...employee }) => employee)).toEqual([
+        {
+          googleuserid: 'g_id',
+          name: 'Ursula Le Guin',
+          primaryemailaddress: 'ursula@notanemail.com',
+          secondaryemailaddresses: ['ursula2@notanemail.com'],
+          slackuserid: 's_id',
+        },
+      ]);
+    });
+
+    it('No employees return 200', async () => {
+      const res = await request(app).get('/api/employees').send();
+
+      const result: Employee[] = res.body
+
+      expect(res.status).toBe(200);
+      expect(result).toEqual([]);
+    });
+
+    it('Several results, return 200', async () => {
+      await createOrUpdate({
+        name: 'Ursula Le Guin',
+        email: 'ursula@notanemail.com',
+        secondary_emails: ['ursula2@notanemail.com'],
+        google_user_id: 'g_id',
+        slack_user_id: 's_id',
+      });
+      await createOrUpdate({
+        name: 'Ursula Le Guin',
+        email: 'ursula2@notanemail.com',
+        secondary_emails: ['ursula@notanemail.com'],
+        google_user_id: 'g_id',
+        slack_user_id: 's_id',
+      });
+
+      const res = await request(app).get('/api/employees').send();
+
+      const result: Employee[] = res.body
+
+      expect(res.status).toBe(200);
+      expect(result.map(({ id, ...employee }) => employee)).toEqual([
+        {
+          googleuserid: 'g_id',
+          name: 'Ursula Le Guin',
+          primaryemailaddress: 'ursula@notanemail.com',
+          secondaryemailaddresses: ['ursula2@notanemail.com'],
+          slackuserid: 's_id',
+        },
+        {
+          googleuserid: 'g_id',
+          name: 'Ursula Le Guin',
+          primaryemailaddress: 'ursula2@notanemail.com',
+          secondaryemailaddresses: ['ursula@notanemail.com'],
+          slackuserid: 's_id',
+        },
+      ]);
     });
   });
 

@@ -5,8 +5,8 @@ export class DuplicateError extends Error {}
 export interface Employee {
   id: string;
   name: string;
-  email: string;
-  secondary_emails?: string[];
+  primaryEmailAddress: string;
+  secondaryEmailAddresses?: string[];
   googleUserId?: string;
   slackUserId?: string;
 }
@@ -90,4 +90,15 @@ export const getEmployeeByEmail = async (email: string): Promise<Employee | null
   );
 
   return result.rows[0] || null;
+};
+
+export const getEmployees = async (): Promise<Employee[]> => {
+  const result = await client.query(
+    `
+    SELECT id, name, email as primaryEmailAddress, secondary_emails as secondaryEmailAddresses, google_user_id as googleUserId, slack_user_id as slackUserId
+    FROM employees
+  `,
+  );
+
+  return result.rows;
 };
