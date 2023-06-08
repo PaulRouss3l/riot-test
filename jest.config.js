@@ -23,6 +23,7 @@ module.exports = {
 
   // The test environment that will be used for testing.
   testEnvironment: 'node',
+  testTimeout: 15000,
 
   // A map from regular expressions to paths to transformers.
   transform: {

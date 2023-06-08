@@ -89,6 +89,9 @@ I've used :
  - `supertest` as an API testing tool
  - `axios-mock-adapter` to mock the provider response
 
+The provider you provided tend to be a little slow, and I have made some integration test, in order for them to function properly I had to increase the test timeout.
+Maybe It's not enough, if you have some flacky tests, it could come from there
+
 ### To go further
 
   - Create a simple docker with alpine-node for the backend
