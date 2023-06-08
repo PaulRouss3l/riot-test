@@ -18,7 +18,7 @@
     "start": "node dist/src/server.js",
     "schema:generate": "./createSchema.sh $(find src/schemas/ -name '*.ts'  -printf \"%f\\n\" | sed 's/\\.schema.ts$//1')",
     "start:watch": "nodemon --watch 'src/**/*.ts' --ignore 'src/**/*.spec.ts' --exec 'ts-node src/server.ts'",
-    "test": "PGPORT=5434 jest"
+    "test": "npm run build && PGPORT=5434 jest"
   },
   "dependencies": {
     "ajv": "^8.12.0",

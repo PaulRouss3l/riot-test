@@ -69,11 +69,9 @@ export class ProviderImportService {
 
   async importEmployees(payload: ProviderPayload): Promise<ProviderData> {
     const data = await this.getDataFromProvider(payload);
-
+    const employeesData = data.employees.map((employee) => ProviderImportService.ProviderEmployeeToEmployeePayload(data.provider, employee))
     await Promise.all(
-      data.employees
-        .map((employee) => ProviderImportService.ProviderEmployeeToEmployeePayload(data.provider, employee))
-        .map(async (employee) => await createOrUpdate(employee)),
+      employeesData.map(async (employee) => await createOrUpdate(employee)),
     );
 
     return data;

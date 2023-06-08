@@ -22,10 +22,13 @@ stop: # stop the DB
 	docker-compose stop
 
 .PHONY: reset
-reset: ## reset the DB
-	docker-compose down --volumes
+reset: clean ## reset the DB
 	docker-compose up -d
 
 .PHONY: generate-schema
 generate-schema: ## write schema
 	npm run schema:generate
+
+.PHONY: clean
+clean: ## write schema
+	docker-compose down --volumes

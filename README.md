@@ -13,6 +13,7 @@ This repo is aiming to solve this [code challenge](https://github.com/tryriot/ba
 make install
 # or
 npm i
+cp .env.sample .env
 ```
 
 ## Run
@@ -81,6 +82,7 @@ I'm using PostgresSQL as a DB. We could use something lighter but I didn't see r
 
 I considered NoSQL at some point because of the email/emails key missmatch, and given the history step it's maybe what was expected. Given the subject context, I think this data will be used in conjonction with other data, where a relational DB will be more efficient.
 
+In a real life case, I would have used a migration software to handle DB change.
 
 ### Testing
 
