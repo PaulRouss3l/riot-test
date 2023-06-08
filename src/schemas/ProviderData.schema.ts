@@ -1,3 +1,12 @@
+export interface Emails {
+  /**
+   * @format email
+   * @TJS-type string
+   */
+  address: string;
+  isPrimary: boolean;
+}
+
 export interface Employee {
   id: string;
   name: string;
@@ -5,7 +14,8 @@ export interface Employee {
    * @format email
    * @TJS-type string
    */
-  email: string;
+  email?: string;
+  emails?: Emails[];
 }
 
 export interface ProviderData {

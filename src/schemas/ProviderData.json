@@ -1,11 +1,30 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
   "definitions": {
+    "Emails": {
+      "properties": {
+        "address": {
+          "format": "email",
+          "type": "string"
+        },
+        "isPrimary": {
+          "type": "boolean"
+        }
+      },
+      "required": ["address", "isPrimary"],
+      "type": "object"
+    },
     "Employee": {
       "properties": {
         "email": {
           "format": "email",
           "type": "string"
+        },
+        "emails": {
+          "items": {
+            "$ref": "#/definitions/Emails"
+          },
+          "type": "array"
         },
         "id": {
           "type": "string"
@@ -14,7 +33,7 @@
           "type": "string"
         }
       },
-      "required": ["email", "id", "name"],
+      "required": ["id", "name"],
       "type": "object"
     }
   },

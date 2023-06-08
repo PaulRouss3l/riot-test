@@ -117,7 +117,7 @@ describe('App Test', () => {
           slack_user_id: 'slackId2',
         },
       ];
-      expect(result.rows.map(({id, ...employee}) => employee)).toEqual(expectedInDb);
+      expect(result.rows.map(({ id, ...employee }) => employee)).toEqual(expectedInDb);
     });
 
     it('Invalid payload, return 400', async () => {
@@ -142,6 +142,50 @@ describe('App Test', () => {
       });
 
       expect(res.status).toBe(400);
+    });
+
+    it('Happy path, but with data update', async () => {
+      await request(app).post('/api/import').set('Content-Type', 'application/json').send({
+        url: 'https://fake-directory-provider.onrender.com/tests/slack/0',
+      });
+
+      const res = await request(app).post('/api/import').set('Content-Type', 'application/json').send({
+        url: 'https://fake-directory-provider.onrender.com/tests/google/0',
+      });
+      expect(res.status).toBe(201);
+
+      const result = await client.query(`SELECT * FROM employees`);
+      const expectedInDb = [
+        {
+          name: 'Candace Foster',
+          email: 'candacefoster@quarx.com',
+          secondary_emails: [],
+          google_user_id: null,
+          slack_user_id: 'slackId1'
+        },
+        {
+          name: 'Latonya Morrow',
+          email: 'latonyamorrow@quarx.com',
+          secondary_emails: [],
+          google_user_id: null,
+          slack_user_id: 'slackId2'
+        },
+        {
+          name: 'Alex Bozer',
+          email: 'bozer@quarx.com',
+          secondary_emails: [],
+          google_user_id: 'googleId5',
+          slack_user_id: null
+        },
+        {
+          name: 'Annie Flowers',
+          email: 'annieflowers@quarx.com',
+          secondary_emails: [],
+          google_user_id: 'googleId3',
+          slack_user_id: null
+        }
+      ];
+      await expect(result.rows.map(({ id, ...employee }) => employee)).toEqual(expectedInDb);
     });
   });
 

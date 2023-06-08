@@ -1,21 +1,15 @@
 import { ProviderPayload } from '../../schemas/ProviderPayload.schema';
 import { EmployeePayload, createOrUpdate } from '../../models/employee.model';
 import ProviderDataJSON from '../../schemas/ProviderData.json';
-import { ProviderData } from '../../schemas/ProviderData.schema';
+import { Employee, ProviderData } from '../../schemas/ProviderData.schema';
 import axios, { AxiosError } from 'axios';
 import Ajv, { Schema } from 'ajv';
-
-interface ProviderEmployee {
-  id: string;
-  name: string;
-  email: string;
-}
 
 export class UnknownProvider extends Error {}
 export class InvalidProviderData extends Error {}
 
 export class ProviderImportService {
-  private async getDataFromProvider(payload: ProviderPayload): Promise<ProviderData> {
+  public async getDataFromProvider(payload: ProviderPayload): Promise<ProviderData> {
     try {
       const response = await axios.get<ProviderData>(payload.url);
       this.validateProviderData(response.data);
@@ -45,14 +39,31 @@ export class ProviderImportService {
     return data;
   };
 
-  private static ProviderPayloadPayload(provider: string, employee: ProviderEmployee): EmployeePayload {
+  // DTO from provider to DB
+  private static ProviderEmployeeToEmployeePayload(provider: string, employee: Employee): EmployeePayload {
     const response: EmployeePayload = {
       name: employee.name,
-      email: employee.email,
+      email: '',
       secondary_emails: [],
     };
+
+    // email handling
+    if (employee.email) {
+      response.email = employee.email;
+    } else if (employee.emails) {
+      const primaryEmail = employee.emails.find((email) => email.isPrimary);
+      if (!primaryEmail) throw new InvalidProviderData();
+      response.email = primaryEmail.address;
+      const secondaryEmail = employee.emails.filter((email) => !email.isPrimary);
+      response.secondary_emails = secondaryEmail.map((email) => email.address);
+    } else {
+      // we dont have any email, something's wrong
+      throw new InvalidProviderData();
+    }
+
     if (provider == 'Google') response.googleUserId = employee.id;
     if (provider == 'Slack') response.slackUserId = employee.id;
+
     return response;
   }
 
@@ -61,7 +72,7 @@ export class ProviderImportService {
 
     await Promise.all(
       data.employees
-        .map((employee) => ProviderImportService.ProviderPayloadPayload(data.provider, employee))
+        .map((employee) => ProviderImportService.ProviderEmployeeToEmployeePayload(data.provider, employee))
         .map(async (employee) => await createOrUpdate(employee)),
     );
 
