@@ -165,11 +165,54 @@ const dataProvider = {
   },
 };
 
+const chainedDataProvider = {
+  BothProviderId: {
+    name: 'BothProviderId',
+    payload: [
+      { url: 'https://notarealprovider.com/tests/google/0' },
+      { url: 'https://notarealprovider.com/tests/slack/0' },
+    ],
+    providerReturn: [
+      {
+        provider: 'Google',
+        employees: [
+          {
+            id: 'googleId5',
+            name: 'Ursula Le Guin',
+            email: 'ursula@quarx.com',
+          },
+        ],
+      },
+      {
+        provider: 'Slack',
+        employees: [
+          {
+            id: 'slackId17',
+            name: 'Ursula Le Guin',
+            email: 'ursula@quarx.com',
+          },
+        ],
+      },
+    ],
+    expected: [
+      {
+        email: 'ursula@quarx.com',
+        google_user_id: 'googleId5',
+        name: 'Ursula Le Guin',
+        secondary_emails: [],
+        slack_user_id: 'slackId17',
+      },
+    ],
+    exception: false,
+  },
+};
+
 describe('ProviderImportService', () => {
   beforeEach(async () => {
     await client.query(`TRUNCATE employees CASCADE;`);
   });
 
+  // tests with only 1 call
   Object.values(dataProvider).forEach((data) => {
     it(data.name, async () => {
       const mock = new MockAdapter(axios);
@@ -187,7 +230,32 @@ describe('ProviderImportService', () => {
         const result = await client.query(`SELECT * FROM employees`);
         expect(result.rows.map(({ id, ...employee }) => employee)).toEqual(data.expected);
       }
-      expect(exception).toBe(data.exception)
+      expect(exception).toBe(data.exception);
+    });
+  });
+
+  // tests with several calls
+  Object.values(chainedDataProvider).map((data) => {
+    it(data.name, async () => {
+      const mock = new MockAdapter(axios);
+      let exception = false;
+
+      // we need to avoid the .map because we need our call to be sequential
+      for (const k in data.payload) {
+        mock.onGet(data.payload[k].url).reply(200, data.providerReturn[k]);
+
+        try {
+          const service = new ProviderImportService();
+          await service.importEmployees(data.payload[k]);
+        } catch (e) {
+          exception = true;
+        }
+      }
+      if (data.expected) {
+        const result = await client.query(`SELECT * FROM employees`);
+        expect(result.rows.map(({ id, ...employee }) => employee)).toEqual(data.expected);
+      }
+      expect(exception).toBe(data.exception);
     });
   });
 

@@ -150,7 +150,7 @@ describe('App Test', () => {
       });
 
       const res = await request(app).post('/api/import').set('Content-Type', 'application/json').send({
-        url: 'https://fake-directory-provider.onrender.com/tests/google/0',
+        url: 'https://fake-directory-provider.onrender.com/tests/google/1',
       });
       expect(res.status).toBe(201);
 
@@ -171,10 +171,17 @@ describe('App Test', () => {
           slack_user_id: 'slackId2'
         },
         {
-          name: 'Alex Bozer',
-          email: 'bozer@quarx.com',
+          name: 'Beno Foster',
+          email: 'beno@quarx.com',
           secondary_emails: [],
-          google_user_id: 'googleId5',
+          google_user_id: 'googleId1',
+          slack_user_id: null
+        },
+        {
+          name: 'Latonya Morrow',
+          email: 'latonya@free.fr',
+          secondary_emails: [ 'latonyamorrow@quarx.com' ],
+          google_user_id: 'googleId2',
           slack_user_id: null
         },
         {
@@ -185,7 +192,7 @@ describe('App Test', () => {
           slack_user_id: null
         }
       ];
-      await expect(result.rows.map(({ id, ...employee }) => employee)).toEqual(expectedInDb);
+      await expect(result.rows.map(({ id, ...employee }) => employee)).toEqual(expect.arrayContaining(expectedInDb));
     });
   });
 

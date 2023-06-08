@@ -15,8 +15,8 @@ export interface EmployeePayload {
   name: string;
   email: string;
   secondary_emails?: string[];
-  googleUserId?: string;
-  slackUserId?: string;
+  google_user_id?: string;
+  slack_user_id?: string;
 }
 
 export const createEmployee = async (payload: EmployeePayload): Promise<Employee> => {
@@ -38,30 +38,33 @@ export const createEmployee = async (payload: EmployeePayload): Promise<Employee
 export const createOrUpdate = async (employee: EmployeePayload) => {
   const duplicate = await getEmployeeByEmail(employee.email);
   if (duplicate) {
+    const params = [];
+    const updateClauses = [];
+    let offset = 1;
+    for (const k in employee) {
+      const param = employee[k as keyof EmployeePayload];
+      // remove null fields, primary email and id as we don't want to change thoses data
+      if (param != null && !['email', 'id'].includes(k) && !(typeof param == 'object' && param.length == 0)) {
+        updateClauses.push(`${k}=$${offset++}`);
+        params.push(param);
+      }
+    }
+    params.push(employee.email);
+
     await client.query(
       `
-    UPDATE employees SET
-      name=$1,
-      secondary_emails=$2,
-      google_user_id=$3,
-      slack_user_id=$4
-    WHERE email=$5
+    UPDATE employees SET ${updateClauses.join(', ')}
+    WHERE email=$${offset}
     `,
-      [
-        employee.name,
-        employee.secondary_emails || [],
-        employee.googleUserId || null,
-        employee.slackUserId || null,
-        employee.email,
-      ],
+      params,
     );
   } else {
     const params = [
       employee.name,
       employee.email,
       employee.secondary_emails || [],
-      employee.googleUserId || null,
-      employee.slackUserId || null,
+      employee.google_user_id || null,
+      employee.slack_user_id || null,
     ];
     await client.query(
       `
@@ -86,5 +89,5 @@ export const getEmployeeByEmail = async (email: string): Promise<Employee | null
     [email],
   );
 
-  return result.rows[0];
+  return result.rows[0] || null;
 };

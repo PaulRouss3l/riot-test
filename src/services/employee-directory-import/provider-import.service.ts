@@ -61,8 +61,8 @@ export class ProviderImportService {
       throw new InvalidProviderData();
     }
 
-    if (provider == 'Google') response.googleUserId = employee.id;
-    if (provider == 'Slack') response.slackUserId = employee.id;
+    if (provider == 'Google') response.google_user_id = employee.id;
+    if (provider == 'Slack') response.slack_user_id = employee.id;
 
     return response;
   }
